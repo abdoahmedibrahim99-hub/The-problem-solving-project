@@ -18,7 +18,7 @@
 
 
 //++++++++++++ STRUCTURES ++++++++++++++++++
-// Manager account 
+// accounts 
 struct ManagerAccount {
 	char username[999];
 	char password[999];
@@ -41,6 +41,33 @@ void nextscreen(int *KeyPressed,int *position) {
 	*position = 1;
 }
 
+// keyboard shortcuts
+#define up 72
+#define down 80
+#define right 77
+#define left 75
+#define enter 13
+
+// movement is used to change between options easier and flexible (0.) is like y axis and (.0) is for x axis
+/*void movement(float* position, int KeyPressed) {
+	if (KeyPressed == 80) {
+		*position += 1.0;
+	}
+	else if (KeyPressed == 72) {
+		*position -= 1.0;
+	}
+	else if (KeyPressed == 77) {
+		*position += 0.01;
+	}
+	else if (KeyPressed == 75) {
+		*position -= 0.01;
+	}
+
+	if (*position == 0) {
+		*position += 1.0;
+	}
+}
+*/
 
 // ++++++++ SCREENS ++++++++++
 // MENU STARTUP SCREEN
@@ -262,6 +289,8 @@ void signup(int position, int ManagerMode, int CustomerMode, int KeyPressed, str
 
 }
 
+ 
+
 // LOGIN SCREEN
 void login(int position, int ManagerMode, int CustomerMode, int KeyPressed, struct ManagerAccount* accountM, int* nameisput, int* passisput, struct CustomerAccount* accountC) {
 	system("cls");
@@ -304,6 +333,7 @@ void login(int position, int ManagerMode, int CustomerMode, int KeyPressed, stru
 
 			KeyPressed = _getch();
 			if (KeyPressed == 'q' || KeyPressed == 'Q') {
+				*passisput = 0,*nameisput=0;
 				return;
 			}
 			else {
@@ -437,16 +467,156 @@ void CustomerDashboard(int position, struct CustomerAccount* accountC) {
 }
 
 // MANAGER DASHBOARD
-void ManagerDashboard(int position, struct ManagerAccount* accountM) {
+void ManagerDashboard(int *position, struct ManagerAccount* accountM, int KeyPressed) {
 	system("cls");
-
-	printf("       ---------- MANAGER DASHBOARD ----------\nWelcome,%s!\n\n\n\n\nPress Q to end demo", accountM->username);
+	
+	if (*position > 4) {
+		*position = 1;
+	}
+	else if (*position < 1) {
+		*position = 4;
+	}
+	printf("       ---------- MANAGER DASHBOARD ----------\nWelcome,%s!\n\n\n\n", accountM->username);
+	if (*position == 1) {
+		printf("=>(Inventory)\nCreate item\nEdit item\nSettings");
+	}
+	else if (*position == 2) {
+		printf("Inventory\n=>(Create item)\nEdit item\nSettings");
+	}
+	else if (*position == 3) {
+		printf("Inventory\nCreate item\n=>(Edit item)\nSettings");
+	}
+	else if (*position == 4) {
+		printf("Inventory\nCreate item\nEdit item\n=>(Settings)");
+	}
 }
 
+
+// Add Item Screen
+void createitem(int position, int KeyPressed, int* created) {
+	char id[999] = "", itemname[999] = "";
+	double itemPrice = 0.0;
+	int quantity = 0, found = 0;
+
+	printf("            ------------- Add item to inventory --------------\n\n\n");
+	printf("            +----------------------------------------+\n");
+
+	printf("            |            Enter item ID               |\n            +----------------------------------------+\n\n            >");
+	scanf_s("%s", id, (unsigned int)sizeof(id));
+
+	printf("\n            +----------------------------------------+\n");
+	printf("            |            Enter item name             |\n");
+	printf("            +----------------------------------------+\n\n            >");
+	scanf_s("%s", itemname, (unsigned int)sizeof(itemname));
+
+	printf("\n            +----------------------------------------+\n");
+	printf("            |            Enter item price            |\n");
+	printf("            +----------------------------------------+\n\n            >");
+	scanf_s("%lf", &itemPrice);
+
+	printf("\n            +----------------------------------------+\n");
+	printf("            |      Enter current item quantity       |\n");
+	printf("            +----------------------------------------+\n\n            >");
+	scanf_s("%d", &quantity);
+
+	nextscreen(&KeyPressed, &position);
+	printf("            ------------- CONFIRM ITEM --------------\n\n\n");
+
+	printf("                                       Item name              \n");
+	printf("            +----------------------------------------+\n");
+	printf("                                 ( %s )               \n            +----------------------------------------+\n\n", itemname);
+	printf("                                       Item ID              \n");
+	printf("            +----------------------------------------+\n");
+	printf("                                 ( %s )         \n", id);
+	printf("            +----------------------------------------+\n\n");
+	printf("                                       Item price              \n");
+	printf("            +----------------------------------------+\n");
+	printf("                                 ( %.3lf ) EGP      \n", itemPrice);
+	printf("            +----------------------------------------+\n\n");
+	printf("                                     Current Quantity              \n");
+	printf("            +----------------------------------------+\n");
+	printf("                                 ( %d )x      \n", quantity);
+	printf("            +----------------------------------------+\n\n");
+
+	printf("            +----------------------------------------+\n");
+	printf("            |                 =>SUBMIT?              |\n            +----------------------------------------+\n\n\n\n");
+	printf("Press Q to re-enter information.");
+
+	KeyPressed = _getch();
+	if (KeyPressed == 'q' || KeyPressed == 'Q') {
+		return;
+	}
+	else if (KeyPressed == enter) {
+		FILE* fptr = NULL;
+		char storedid[999] = { 0 }, storedname[999] = { 0 };
+		double storedprice = 0.0;
+		int storedquantity = 0;
+
+
+		if (fopen_s(&fptr, "inventory.txt", "r") == 0 && fptr != NULL) {
+			while (fscanf_s(fptr, "%s %s %lf %d", storedid, (unsigned int)_countof(storedid), storedname, (unsigned int)_countof(storedname), &storedprice, &storedquantity) == 4) {
+				if (strcmp(id, storedid) == 0 || strcmp(itemname, storedname) == 0) {
+					found = 1;
+					break;
+				}
+			}
+			fclose(fptr);
+		}
+
+
+		if (found == 1) {
+			printf("\nItem with the same name/ID already exists. Press any key to try again...");
+			_getch();
+			return;
+		}
+		else {
+
+			if (fopen_s(&fptr, "inventory.txt", "a") == 0 && fptr != NULL) {
+				fprintf(fptr, "%s %s %.3lf %d\n", id, itemname, itemPrice, quantity);
+				fclose(fptr);
+				*created = 1;
+			}
+			else {
+				printf("\nError: Could not save to file (Check folder permissions)! Press ANY key to exit...");
+				_getch();
+				*created = -1;
+				return;
+			}
+		}
+	}
+}
+
+// VIEW ITEMS
+void inventory(int *KeyPressed) {
+	FILE* fptr;
+	char id[999] = { 0 }, itemname[999] = { 0 };
+	double price = 0.0;
+	int quantity = 0;
+
+	system("cls");
+	printf("       ---------- INVENTORY ----------\n\n\n\n%-15s|%-15s|%-15s|%-15s\n","ID","NAME","PRICE","QUANTITY");
+	printf("---------------------------------------------------------\n");
+	if (fopen_s(&fptr, "inventory.txt", "r") == 0 && fptr != NULL) {
+		while (fscanf_s(fptr, "%s %s %lf %d", id, (unsigned int)sizeof(id), itemname, (unsigned int)sizeof(itemname), &price, &quantity) == 4) {
+			printf("%-15s|%-15s|%-15.2lf|x%-15d\n", id, itemname, price, quantity);
+		}
+		fclose(fptr);
+	}
+	else {
+		printf("\n\n\nThere is no inventory currently..");
+	}
+
+	printf("\n\npress Q to return to dashboard.....");
+	if (*KeyPressed != 'q' && *KeyPressed != 'Q') {
+		*KeyPressed = _getch();
+	}
+}
+
+
 int main() {
-	int position = 1, KeyPressed = 0, CustomerMode = 1, ManagerMode = 0, nameisput = 0, passisput = 0;
-	struct ManagerAccount accountM[99];
-	struct CustomerAccount accountC[99];
+	int position =1,KeyPressed = 0, CustomerMode = 1, ManagerMode = 0, nameisput = 0, passisput = 0,created = 0;
+	struct ManagerAccount accountM[99] = { 0 };
+	struct CustomerAccount accountC[99] = { 0 };
 
 	while (KeyPressed != 13) {
 		MenuScreen(position);
@@ -519,23 +689,42 @@ int main() {
 
 	nextscreen(&KeyPressed, &position);
 
-	if (CustomerMode) {
+	
+	if (ManagerMode) {
 		while (1) {
-			CustomerDashboard(position, &accountC[0]);
+			ManagerDashboard(&position, &accountM[0],KeyPressed);
 			KeyPressed = _getch();
-			if (KeyPressed == 'q' || KeyPressed == 'Q');
-			break;
+
+			if (KeyPressed == 0 || KeyPressed == 224) {
+				KeyPressed = _getch();
+				if (KeyPressed == down) {
+					position += 1;
+				}
+				else if (KeyPressed == up) {
+					position -= 1;
+				}
+			}
+			else if (KeyPressed == enter && position == 1){
+					inventory(&KeyPressed);
+			}
+			else if (KeyPressed == enter && position == 2) {
+				while (1) {
+				nextscreen(&KeyPressed, &position);
+				createitem(position, KeyPressed,&created);
+				if (created) {
+					created = 0;
+					inventory(&KeyPressed);
+
+					if (KeyPressed == 'q' || KeyPressed == 'Q') {
+						break;
+					}
+				}
+				}
+				
+			}
 		}
 	}
-	else if (ManagerMode) {
-		while (1) {
-			ManagerDashboard(position, &accountM[0]);
-			KeyPressed = _getch();
-			if (KeyPressed == 'q' || KeyPressed == 'Q');
-			break;
-		}
-	}
-	printf("Demo end last position %d", position);
+	printf("Demo end last position %.2f", position);
 
 	return 0;
 }
