@@ -1,40 +1,38 @@
 ﻿  Problem solving project.cpp
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(143,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(143,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(157,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(157,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(148,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(148,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(162,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(162,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(225,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(225,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(239,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(239,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(230,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(230,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(244,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(244,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(304,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(304,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(318,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(318,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(309,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(309,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(323,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(323,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(391,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(391,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(405,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(405,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(396,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
-      E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(396,11):
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(410,11): warning C4477: 'scanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(410,11):
       this argument is used as a buffer size
   
-E:\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(727,9): warning C4477: 'printf' : format string '%.2f' requires an argument of type 'double', but variadic argument 1 has type 'int'
-  Generating code
-  2 of 17 functions (11.8%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  Problem solving project.vcxproj -> E:\Semester 2\Problem Solving\Project\Problem solving project\x64\Release\Problem solving project.exe
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(819,5): error C2601: 'main': local function definitions are illegal
+      D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(630,86):
+      this line contains a '{' which has not yet been matched
+  
+D:\College\Semester 2\Problem Solving\Project\Problem solving project\Problem solving project\Problem solving project.cpp(630,86): error C1075: '{': no matching token found
