@@ -166,6 +166,7 @@ void AccountAccess(int position,int ManagerMode,int CustomerMode,int KeyPressed)
 			printf("            +------------------+       +----------------+");
 
 		}
+
 	}else if(CustomerMode == 1){
 		printf("            -------------- Access Account to Customer mode --------------\n\n\n");
 		printf("            +------------------+       +----------------+\n");
@@ -180,7 +181,6 @@ void AccountAccess(int position,int ManagerMode,int CustomerMode,int KeyPressed)
 			printf("            +------------------+       +----------------+");
 
 		}
-
 	}
 	
 
@@ -267,7 +267,7 @@ void signup(int position, int ManagerMode, int CustomerMode, int KeyPressed, str
 				}
 				else {
 					fopen_s(&fptr, "managers_accounts.txt", "a");
-					fprintf(fptr, "\n%s %s", accountM->username, accountM->password);
+					fprintf(fptr, "%s %s\n", accountM->username, accountM->password);
 					fclose(fptr);
 				}
 			}
@@ -755,7 +755,7 @@ void inventory(int *KeyPressed,int quantity_item_counter,int weighted_item_count
 	
 	else if (*position == 2) {
 		printf("\n\n           QUANTITY ITEMS      =>(WEIGHTED ITEMS)");
-		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(EGP)", "WEIGHT");
+		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(per gram)", "WEIGHT");
 		printf("---------------------------------------------------------------------\n");
 		if (counter < weighted_item_counter) {
 			for (counter = 0; counter < weighted_item_counter; counter++) {
@@ -845,7 +845,7 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 	}
 	else if (*position == 2) {
 		printf("\n\n           QUANTITY ITEMS      =>(WEIGHTED ITEMS)");
-		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE", "WEIGHT");
+		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(per gram)", "WEIGHT");
 		if (counter < weighted_item_counter) {
 			while (counter < weighted_item_counter) {
 				if (productsW[counter].weight > 1000) {
@@ -1210,81 +1210,81 @@ int main() {
 
 	while (1) {
 
-	
-	while (KeyPressed != enter) {
-		MenuScreen(position);
-		KeyPressed = _getch();
-		if (KeyPressed == 0|| KeyPressed == 224) {
-			KeyPressed = _getch();
-		if (KeyPressed == 75) {
-			position = 1;
-			CustomerMode = 1;
-			ManagerMode = 0;
-		}
-		else if (KeyPressed == 77) {
-			position = 2;
-			CustomerMode = 0;
-			ManagerMode = 1;
-
-		}
-		}
-	}
-	
-	
-	nextscreen(&KeyPressed,&position);
-
-	if (ManagerMode) {
-		while (KeyPressed != 13) {
-			AccountAccess(position, ManagerMode, CustomerMode,KeyPressed);
-			KeyPressed = _getch();
-
-	 if (KeyPressed == 0 || KeyPressed == 224) {
+			while (KeyPressed != enter) {
+				MenuScreen(position);
 				KeyPressed = _getch();
-				if (KeyPressed == 75) {
-					position = 1;
-				}
-				else if (KeyPressed == 77) {
-					position = 2;
-				}
-				else if (KeyPressed == q || KeyPressed == Q) {
-					ManagerMode = 0;
-					break;
+				if (KeyPressed == 0 || KeyPressed == 224) {
+					KeyPressed = _getch();
+					if (KeyPressed == 75) {
+						position = 1;
+						CustomerMode = 1;
+						ManagerMode = 0;
+					}
+					else if (KeyPressed == 77) {
+						position = 2;
+						CustomerMode = 0;
+						ManagerMode = 1;
+
+					}
 				}
 			}
-		}
-		
-	}
-	else if (CustomerMode) {
-		while (KeyPressed != 13) {
-			AccountAccess(position, ManagerMode, CustomerMode,KeyPressed);
-			KeyPressed = _getch();
 
-	  if (KeyPressed == 0 || KeyPressed == 224) {
-				KeyPressed = _getch();
-				if (KeyPressed == 75) {
-					position = 1;
+
+			nextscreen(&KeyPressed, &position);
+
+			if (ManagerMode) {
+				while (KeyPressed != 13) {
+					AccountAccess(position, ManagerMode, CustomerMode, KeyPressed);
+					KeyPressed = _getch();
+					
+					if (KeyPressed == 0 || KeyPressed == 224) {
+						KeyPressed = _getch();
+						if (KeyPressed == 75) {
+							position = 1;
+						}
+						else if (KeyPressed == 77) {
+							position = 2;
+						}
+						
+					}
 				}
-				else if (KeyPressed == 77) {
-					position = 2;
+
+			}
+			else if (CustomerMode) {
+				while (KeyPressed != 13) {
+					AccountAccess(position, ManagerMode, CustomerMode, KeyPressed);
+					KeyPressed = _getch();
+
+					
+
+					if (KeyPressed == 0 || KeyPressed == 224) {
+						KeyPressed = _getch();
+						if (KeyPressed == 75) {
+							position = 1;
+						}
+						else if (KeyPressed == 77) {
+							position = 2;
+						}
+					}
 				}
 			}
-		}
-	}
 
-	system("cls");
-	KeyPressed = 0;
+			system("cls");
+			KeyPressed = 0;
 
-	if (position == 1) {
-		while (nameisput ==0 && passisput == 0 && KeyPressed != 13) {
-			signup(position, ManagerMode, CustomerMode,KeyPressed,&accountM[0],&nameisput,&passisput,&accountC[0]);
-		}
-	}
+			if (position == 1) {
+				while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
+					signup(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
+				}
+			}
 
-	if (position == 2) {
-		while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
-			login(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
-		}
-	}
+			if (position == 2) {
+				while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
+					login(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
+				}
+			}
+	
+	
 
 	nextscreen(&KeyPressed, &position);
 
@@ -1310,19 +1310,17 @@ int main() {
 					
 			}
 			else if (KeyPressed == enter && position == 2) {
-				while (1) {
+
 				nextscreen(&KeyPressed, &position);
 				createitem(position, KeyPressed,&created);
 				if (created) {
 					created = 0;
 					SaveInventory(products, &quantity_item_counter,&weighted_item_counter,productsW);
-					inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
-
-					if (KeyPressed == 'q' || KeyPressed == 'Q') {
-						break;
+					while (KeyPressed != q && KeyPressed != Q) {
+						inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
 					}
 				}
-				}
+				
 				
 			}
 			else if (KeyPressed == enter && position == 3) {
