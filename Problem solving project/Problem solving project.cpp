@@ -185,6 +185,7 @@ void AccountAccess(int position,int ManagerMode,int CustomerMode,int KeyPressed)
 			printf("            +------------------+       +----------------+");
 
 		}
+
 	}else if(CustomerMode == 1){
 		printf("            -------------- Access Account to Customer mode --------------\n\n\n");
 		printf("            +------------------+       +----------------+\n");
@@ -199,7 +200,6 @@ void AccountAccess(int position,int ManagerMode,int CustomerMode,int KeyPressed)
 			printf("            +------------------+       +----------------+");
 
 		}
-
 	}
 	
 
@@ -229,8 +229,13 @@ void signup(int position, int ManagerMode, int CustomerMode, int KeyPressed, str
 		*passisput = 1;
 		printf("\n            +----------------------------------------+\n");
 		printf("            |              Enter signup pin          |\n");
-		printf("            +----------------------------------------+\n\n            >");
-		scanf_s("%d", &pin);
+		printf("            +----------------------------------------+\n            Test pin: 8909\n\n            >");
+		if (scanf_s("%d", &pin) != 1) {
+			int c;
+			while ((c = getchar()) != '\n' && c != EOF);
+
+			pin = -1;
+		}
 
 		if (pin == managersignupPin) {
 			nextscreen(&KeyPressed, &position);
@@ -281,7 +286,7 @@ void signup(int position, int ManagerMode, int CustomerMode, int KeyPressed, str
 				}
 				else {
 					fopen_s(&fptr, "managers_accounts.txt", "a");
-					fprintf(fptr, "\n%s %s", accountM->username, accountM->password);
+					fprintf(fptr, "%s %s\n", accountM->username, accountM->password);
 					fclose(fptr);
 				}
 			}
@@ -383,9 +388,15 @@ void login(int position, int ManagerMode, int CustomerMode, int KeyPressed, stru
 		scanf_s("%s", accountM->password, sizeof(accountM->password));
 		*passisput = 1;
 		printf("\n            +----------------------------------------+\n");
-		printf("            |              Enter signup pin          |\n");
-		printf("            +----------------------------------------+\n\n            >");
-		scanf_s("%d", &pin);
+		printf("            |              Enter login pin          |\n");
+		printf("            +----------------------------------------+\n            Test pin: 1221\n\n           >");
+		
+		if (scanf_s("%d", &pin) != 1) {
+			int c;
+			while ((c = getchar()) != '\n' && c != EOF);
+
+			pin = -1;
+		}
 
 		if (pin == managerloginpin) {
 			nextscreen(&KeyPressed, &position);
@@ -448,6 +459,9 @@ void login(int position, int ManagerMode, int CustomerMode, int KeyPressed, stru
 		else {
 			printf("    Error: the pin is incorrect.Press ANY key to try again");
 			KeyPressed = _getch();
+
+			strcpy_s(accountM->password, sizeof(accountM->password), "");
+			strcpy_s(accountM->username, sizeof(accountM->username), "");
 				*passisput = 0, * nameisput = 0;
 				return;
 		}
@@ -881,7 +895,7 @@ void createitem(int position, int KeyPressed, int* created) {
 	}
 	else if (KeyPressed == enter) {
 		FILE* fptr = NULL;
-		char storedid[999] = { 0 }, storedname[999] = { 0 };
+		char storedid[50] = { 0 }, storedname[50] = { 0 };
 		double storedprice = 0.0,storedweight = 0.0;
 		int storedquantity = 0;
 
@@ -985,7 +999,7 @@ void inventory(int *KeyPressed,int quantity_item_counter,int weighted_item_count
 	
 	else if (*position == 2) {
 		printf("\n\n           QUANTITY ITEMS      =>(WEIGHTED ITEMS)");
-		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(EGP)", "WEIGHT");
+		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(per gram)", "WEIGHT");
 		printf("---------------------------------------------------------------------\n");
 		if (counter < weighted_item_counter) {
 			for (counter = 0; counter < weighted_item_counter; counter++) {
@@ -1005,6 +1019,9 @@ void inventory(int *KeyPressed,int quantity_item_counter,int weighted_item_count
 	}
 
 	*KeyPressed = _getch();
+	if (*KeyPressed == 0 || *KeyPressed == 224) {
+		*KeyPressed = _getch(); 
+	}
 }
 
 // Edit items
@@ -1044,6 +1061,9 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 		}
 		printf("\n\nIntiate editing?(Y/N)");
 		*KeyPressed = _getch();
+		if (*KeyPressed == 0 || *KeyPressed == 224) {
+			*KeyPressed = _getch();
+		}
 		if (*KeyPressed == Y || *KeyPressed == y) {
 			printf("\nEnter item ID > ");
 			scanf_s("%s", id, (unsigned int)sizeof(id));
@@ -1069,7 +1089,7 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 	}
 	else if (*position == 2) {
 		printf("\n\n           QUANTITY ITEMS      =>(WEIGHTED ITEMS)");
-		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE", "WEIGHT");
+		printf("\n\n\n\n%-15s|%-30s|%-15s|%-15s\n", "ID", "NAME", "PRICE(per gram)", "WEIGHT");
 		if (counter < weighted_item_counter) {
 			while (counter < weighted_item_counter) {
 				if (productsW[counter].weight > 1000) {
@@ -1086,6 +1106,9 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 		}
 		printf("\n\nIntiate editing?(Y/N)");
 		*KeyPressed = _getch();
+		if (*KeyPressed == 0 || *KeyPressed == 224) {
+			*KeyPressed = _getch();
+		}
 		if (*KeyPressed == Y || *KeyPressed == y) {
 			printf("\nEnter item ID > ");
 			scanf_s("%s", id, (unsigned int)sizeof(id));
@@ -1141,19 +1164,23 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 				}
 
 				*KeyPressed = _getch();
-				if (*KeyPressed == right) {
-					*position += 1;
+				if(*KeyPressed == 0 || *KeyPressed == 224){
+					*KeyPressed = _getch();
+					if (*KeyPressed == right) {
+						*position += 1;
+					}
+					else if (*KeyPressed == left) {
+						*position -= 1;
+					}
 				}
-				else if (*KeyPressed == left) {
-					*position -= 1;
-				}
+				
 				int found = 0;
 
 				if (*KeyPressed == enter && *position == 1) {
 					printf("\n\nEnter a new ID for the item > ");
 					scanf_s("%s", id, (unsigned int)sizeof(id));
 					for (int j = 0; j < quantity_item_counter; j++) {
-						if (strcmp(id, products[j].ID) == 0) {
+						if (strcmp(id, products[j].ID) == 0 && j != counter) {
 							found = 1;
 							break;
 						}
@@ -1171,7 +1198,7 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 					printf("\n\nEnter new name for the item > ");
 					scanf_s("%s", name, (unsigned int)sizeof(name));
 					for (int j = 0; j < quantity_item_counter; j++) {
-						if (strcmp(name, products[j].name) == 0) {
+						if (strcmp(name, products[j].name) == 0 && j!=counter) {
 							found = 1;
 							break;
 						}
@@ -1287,21 +1314,24 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 				else if (*position == 5) {
 					printf("\n\n\n  ID       NAME       PRICE       WEIGHT     =>(RETURN)");
 				}
-
 				*KeyPressed = _getch();
-				if (*KeyPressed == right) {
-					*position += 1;
+				if (*KeyPressed == 0 || *KeyPressed == 224) {
+					*KeyPressed = _getch();
+					if (*KeyPressed == right) {
+						*position += 1;
+					}
+					else if (*KeyPressed == left) {
+						*position -= 1;
+					}
 				}
-				else if (*KeyPressed == left) {
-					*position -= 1;
-				}
+				
 
 				int found = 0;
 				if (*KeyPressed == enter && *position == 1) {
 					printf("\n\nEnter a new ID for the item > ");
 					scanf_s("%s", id, (unsigned int)sizeof(id));
 					for (int j = 0; j < weighted_item_counter; j++) {
-						if (strcmp(id, productsW[j].ID) == 0) {
+						if (strcmp(id, productsW[j].ID) == 0 && j!=counter) {
 							found = 1;
 							break;
 						}
@@ -1319,7 +1349,7 @@ void EditItem(int *position, int *KeyPressed,struct InventoryItems products[],st
 					printf("\n\nEnter new name for the item > ");
 					scanf_s("%s", name, (unsigned int)sizeof(name));
 					for (int j = 0; j < weighted_item_counter; j++) {
-						if (strcmp(name, productsW[j].name) == 0) {
+						if (strcmp(name, productsW[j].name) == 0&&j!=counter) {
 							found = 1;
 							break;
 						}
@@ -1426,81 +1456,81 @@ int main() {
 
 	while (1) {
 
-	
-	while (KeyPressed != enter) {
-		MenuScreen(position);
-		KeyPressed = _getch();
-		if (KeyPressed == 0|| KeyPressed == 224) {
-			KeyPressed = _getch();
-		if (KeyPressed == 75) {
-			position = 1;
-			CustomerMode = 1;
-			ManagerMode = 0;
-		}
-		else if (KeyPressed == 77) {
-			position = 2;
-			CustomerMode = 0;
-			ManagerMode = 1;
-
-		}
-		}
-	}
-	
-	
-	nextscreen(&KeyPressed,&position);
-
-	if (ManagerMode) {
-		while (KeyPressed != 13) {
-			AccountAccess(position, ManagerMode, CustomerMode,KeyPressed);
-			KeyPressed = _getch();
-
-	 if (KeyPressed == 0 || KeyPressed == 224) {
+			while (KeyPressed != enter) {
+				MenuScreen(position);
 				KeyPressed = _getch();
-				if (KeyPressed == 75) {
-					position = 1;
-				}
-				else if (KeyPressed == 77) {
-					position = 2;
-				}
-				else if (KeyPressed == q || KeyPressed == Q) {
-					ManagerMode = 0;
-					break;
+				if (KeyPressed == 0 || KeyPressed == 224) {
+					KeyPressed = _getch();
+					if (KeyPressed == 75) {
+						position = 1;
+						CustomerMode = 1;
+						ManagerMode = 0;
+					}
+					else if (KeyPressed == 77) {
+						position = 2;
+						CustomerMode = 0;
+						ManagerMode = 1;
+
+					}
 				}
 			}
-		}
-		
-	}
-	else if (CustomerMode) {
-		while (KeyPressed != 13) {
-			AccountAccess(position, ManagerMode, CustomerMode,KeyPressed);
-			KeyPressed = _getch();
 
-	  if (KeyPressed == 0 || KeyPressed == 224) {
-				KeyPressed = _getch();
-				if (KeyPressed == 75) {
-					position = 1;
+
+			nextscreen(&KeyPressed, &position);
+
+			if (ManagerMode) {
+				while (KeyPressed != 13) {
+					AccountAccess(position, ManagerMode, CustomerMode, KeyPressed);
+					KeyPressed = _getch();
+					
+					if (KeyPressed == 0 || KeyPressed == 224) {
+						KeyPressed = _getch();
+						if (KeyPressed == 75) {
+							position = 1;
+						}
+						else if (KeyPressed == 77) {
+							position = 2;
+						}
+						
+					}
 				}
-				else if (KeyPressed == 77) {
-					position = 2;
+
+			}
+			else if (CustomerMode) {
+				while (KeyPressed != 13) {
+					AccountAccess(position, ManagerMode, CustomerMode, KeyPressed);
+					KeyPressed = _getch();
+
+					
+
+					if (KeyPressed == 0 || KeyPressed == 224) {
+						KeyPressed = _getch();
+						if (KeyPressed == 75) {
+							position = 1;
+						}
+						else if (KeyPressed == 77) {
+							position = 2;
+						}
+					}
 				}
 			}
-		}
-	}
 
-	system("cls");
-	KeyPressed = 0;
+			system("cls");
+			KeyPressed = 0;
 
-	if (position == 1) {
-		while (nameisput ==0 && passisput == 0 && KeyPressed != 13) {
-			signup(position, ManagerMode, CustomerMode,KeyPressed,&accountM[0],&nameisput,&passisput,&accountC[0]);
-		}
-	}
+			if (position == 1) {
+				while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
+					signup(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
+				}
+			}
 
-	if (position == 2) {
-		while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
-			login(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
-		}
-	}
+			if (position == 2) {
+				while (nameisput == 0 && passisput == 0 && KeyPressed != 13) {
+					login(position, ManagerMode, CustomerMode, KeyPressed, &accountM[0], &nameisput, &passisput, &accountC[0]);
+				}
+			}
+	
+	
 
 	nextscreen(&KeyPressed, &position);
 
@@ -1526,19 +1556,17 @@ int main() {
 					
 			}
 			else if (KeyPressed == enter && position == 2) {
-				while (1) {
+
 				nextscreen(&KeyPressed, &position);
 				createitem(position, KeyPressed,&created);
 				if (created) {
 					created = 0;
 					SaveInventory(products, &quantity_item_counter,&weighted_item_counter,productsW);
-					inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
-
-					if (KeyPressed == 'q' || KeyPressed == 'Q') {
-						break;
+					while (KeyPressed != q && KeyPressed != Q) {
+						inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
 					}
 				}
-				}
+				
 				
 			}
 			else if (KeyPressed == enter && position == 3) {
