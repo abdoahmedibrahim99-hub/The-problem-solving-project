@@ -2,6 +2,7 @@
 #include<stdlib.h> // contains system("cls") command
 #include<conio.h> // contains _getch() command
 #include<string.h> //to search easier
+#include<time.h> // for unique receipt IDs
 
 
 /* KEYBOARD NUMBERS
@@ -45,6 +46,24 @@ struct WeightedItems {
 	char name[99];
 	double price;
 	double weight;
+};
+
+// shopping cart items
+struct CartItem {
+	char ID[99];
+	char name[99];
+	double price;
+	double amount;  // quantity or weight
+	int isWeighted; // 1 if weighted, 0 if quantity
+	double returned_amount; // amount already returned
+};
+
+struct Receipt {
+	char receiptID[50];
+	char customerName[99];
+	char purchaseTime[100]; // New field for time
+	int item_count;
+	struct CartItem items[100];
 };
 
 // ++++++++ SHORTCUT COMMANDS +++++++
@@ -507,37 +526,262 @@ void login(int position, int ManagerMode, int CustomerMode, int KeyPressed, stru
 }
 
 // CUSTOMER DASHBOARD
-void CustomerDashboard(int position, struct CustomerAccount* accountC) {
+void CustomerDashboard(int *position, struct CustomerAccount* accountC, int KeyPressed) {
 	system("cls");
-	
-	printf("       ---------- CUSTOMER DASHBOARD ----------\nWelcome,%s!\n\n\n\n\nPress Q to end demo", accountC->username);
+
+	if (*position > 5) {
+		*position = 1;
+	}
+	else if (*position < 1) {
+		*position = 5;
+	}
+
+		printf("       ---------- CUSTOMER DASHBOARD ----------\nWelcome,%s!\n\n\n\n\nPress Q to end demo\n\n", accountC->username);
+
+		if (*position == 1) {
+			printf("=>(Inventory)\nAdd to cart\nCheckout\nReturn item\nSignout");
+		}
+		else if (*position == 2) {
+			printf("Inventory\n=>(Add to cart)\nCheckout\nReturn item\nSignout");
+		}
+		else if (*position == 3) {
+			printf("Inventory\nAdd to cart\n=>(Checkout)\nReturn item\nSignout");
+		}
+		else if (*position == 4) {
+			printf("Inventory\nAdd to cart\nCheckout\n=>(Return item)\nSignout");
+		}
+		else if (*position == 5) {
+			printf("Inventory\nAdd to cart\nCheckout\nReturn item\n=>(Signout)");
+		}
 }
 
 // MANAGER DASHBOARD
 void ManagerDashboard(int *position, struct ManagerAccount* accountM, int KeyPressed) {
 	system("cls");
 	
-	if (*position > 4) {
+	if (*position > 5) {
 		*position = 1;
 	}
 	else if (*position < 1) {
-		*position = 4;
+		*position = 5;
 	}
 	printf("       ---------- MANAGER DASHBOARD ----------\nWelcome,%s!\n\n\n\n", accountM->username);
 	if (*position == 1) {
-		printf("=>(Inventory)\nCreate item\nEdit item\nSignout");
+		printf("=>(Inventory)\nCreate item\nEdit item\nView returns\nSignout");
 	}
 	else if (*position == 2) {
-		printf("Inventory\n=>(Create item)\nEdit item\nSignout");
+		printf("Inventory\n=>(Create item)\nEdit item\nView returns\nSignout");
 	}
 	else if (*position == 3) {
-		printf("Inventory\nCreate item\n=>(Edit item)\nSignout");
+		printf("Inventory\nCreate item\n=>(Edit item)\nView returns\nSignout");
 	}
 	else if (*position == 4) {
-		printf("Inventory\nCreate item\nEdit item\n=>(Signout)");
+		printf("Inventory\nCreate item\nEdit item\n=>(View returns)\nSignout");
+	}
+	else if (*position == 5) {
+		printf("Inventory\nCreate item\nEdit item\nView returns\n=>(Signout)");
 	}
 }
 
+
+// Return Item function for Customers
+void ReturnItem(struct InventoryItems products[], int quantity_item_counter, struct WeightedItems productsW[], int weighted_item_counter) {
+	char receiptID[50], itemID[50];
+	double amountToReturn;
+	int foundReceipt = 0, foundItem = 0;
+	FILE *fptr, *tempFptr;
+
+	system("cls");
+	printf("--- RETURN ITEM ---\n");
+	printf("Enter Receipt ID: ");
+	scanf_s("%s", receiptID, (unsigned int)sizeof(receiptID));
+
+	if (fopen_s(&fptr, "receipts.txt", "r") != 0) {
+		printf("No receipts found!\n");
+		_getch();
+		return;
+	}
+
+	struct Receipt currentReceipt;
+	fopen_s(&tempFptr, "receipts_temp.txt", "w");
+
+	while (fscanf_s(fptr, "%s %s %s %d", currentReceipt.receiptID, (unsigned int)sizeof(currentReceipt.receiptID), currentReceipt.customerName, (unsigned int)sizeof(currentReceipt.customerName), currentReceipt.purchaseTime, (unsigned int)sizeof(currentReceipt.purchaseTime), &currentReceipt.item_count) == 4) {
+		if (strcmp(currentReceipt.receiptID, receiptID) == 0) {
+			foundReceipt = 1;
+			printf("\nReceipt Found! Customer: %s | Time: %s\n", currentReceipt.customerName, currentReceipt.purchaseTime);
+			printf("%-15s|%-20s|%-10s|%-10s|%-10s\n", "ID", "Name", "Bought", "Returned", "Price");
+			
+			for (int i = 0; i < currentReceipt.item_count; i++) {
+				fscanf_s(fptr, "%s %s %lf %lf %d %lf", currentReceipt.items[i].ID, (unsigned int)sizeof(currentReceipt.items[i].ID), currentReceipt.items[i].name, (unsigned int)sizeof(currentReceipt.items[i].name), &currentReceipt.items[i].price, &currentReceipt.items[i].amount, &currentReceipt.items[i].isWeighted, &currentReceipt.items[i].returned_amount);
+				printf("%-15s|%-20s|%-10.2lf|%-10.2lf|%-10.2lf\n", currentReceipt.items[i].ID, currentReceipt.items[i].name, currentReceipt.items[i].amount, currentReceipt.items[i].returned_amount, currentReceipt.items[i].price);
+			}
+			printf("\nEnter Item ID to return: ");
+			scanf_s("%s", itemID, (unsigned int)sizeof(itemID));
+
+			for (int i = 0; i < currentReceipt.item_count; i++) {
+				if (strcmp(currentReceipt.items[i].ID, itemID) == 0) {
+					foundItem = 1;
+					printf("Enter amount to return: ");
+					scanf_s("%lf", &amountToReturn);
+
+					if (amountToReturn > 0 && amountToReturn <= (currentReceipt.items[i].amount - currentReceipt.items[i].returned_amount)) {
+						currentReceipt.items[i].returned_amount += amountToReturn;
+
+						// Add back to inventory
+						if (currentReceipt.items[i].isWeighted) {
+							for (int j = 0; j < weighted_item_counter; j++) {
+								if (strcmp(itemID, productsW[j].ID) == 0) {
+									productsW[j].weight += amountToReturn;
+									// Persist weighted inventory
+									FILE* fInv;
+									if (fopen_s(&fInv, "weighteditems.txt", "w") == 0) {
+										for (int k = 0; k < weighted_item_counter; k++) {
+											fprintf(fInv, "%s %s %.2lf %.2lf\n", productsW[k].ID, productsW[k].name, productsW[k].price, productsW[k].weight);
+										}
+										fclose(fInv);
+									}
+									break;
+								}
+							}
+						}
+						else {
+							for (int j = 0; j < quantity_item_counter; j++) {
+								if (strcmp(itemID, products[j].ID) == 0) {
+									products[j].quantity += (int)amountToReturn;
+									// Persist quantity inventory
+									FILE* fInv;
+									if (fopen_s(&fInv, "inventory.txt", "w") == 0) {
+										for (int k = 0; k < quantity_item_counter; k++) {
+											fprintf(fInv, "%s %s %.2lf %d\n", products[k].ID, products[k].name, products[k].price, products[k].quantity);
+										}
+										fclose(fInv);
+									}
+									break;
+								}
+							}
+						}
+						printf("Return successful!\n");
+					}
+					else {
+						printf("Invalid amount!\n");
+					}
+					break;
+				}
+			}
+			if (!foundItem) printf("Item not found on this receipt!\n");
+		} else {
+			// Just copy other receipts to temp file
+			for (int i = 0; i < currentReceipt.item_count; i++) {
+				fscanf_s(fptr, "%s %s %lf %lf %d %lf", currentReceipt.items[i].ID, (unsigned int)sizeof(currentReceipt.items[i].ID), currentReceipt.items[i].name, (unsigned int)sizeof(currentReceipt.items[i].name), &currentReceipt.items[i].price, &currentReceipt.items[i].amount, &currentReceipt.items[i].isWeighted, &currentReceipt.items[i].returned_amount);
+			}
+		}
+		
+		// Write to temp file
+		fprintf(tempFptr, "%s %s %s %d\n", currentReceipt.receiptID, currentReceipt.customerName, currentReceipt.purchaseTime, currentReceipt.item_count);
+		for (int i = 0; i < currentReceipt.item_count; i++) {
+			fprintf(tempFptr, "%s %s %.2lf %.2lf %d %.2lf\n", currentReceipt.items[i].ID, currentReceipt.items[i].name, currentReceipt.items[i].price, currentReceipt.items[i].amount, currentReceipt.items[i].isWeighted, currentReceipt.items[i].returned_amount);
+		}
+	}
+
+	fclose(fptr);
+	fclose(tempFptr);
+	remove("receipts.txt");
+	rename("receipts_temp.txt", "receipts.txt");
+
+	if (!foundReceipt) printf("Receipt ID not found!\n");
+	_getch();
+}
+
+// View Returns function for Managers
+void ViewReturns() {
+	FILE* fptr;
+	struct Receipt r;
+	system("cls");
+	printf("--- RETURNED ITEMS LOG ---\n\n");
+	printf("%-15s|%-15s|%-20s|%-20s|%-10s\n", "Receipt ID", "Customer", "Item", "Time", "Amount");
+	printf("--------------------------------------------------------------------------------\n");
+
+	if (fopen_s(&fptr, "receipts.txt", "r") == 0) {
+		while (fscanf_s(fptr, "%s %s %s %d", r.receiptID, (unsigned int)sizeof(r.receiptID), r.customerName, (unsigned int)sizeof(r.customerName), r.purchaseTime, (unsigned int)sizeof(r.purchaseTime), &r.item_count) == 4) {
+			for (int i = 0; i < r.item_count; i++) {
+				fscanf_s(fptr, "%s %s %lf %lf %d %lf", r.items[i].ID, (unsigned int)sizeof(r.items[i].ID), r.items[i].name, (unsigned int)sizeof(r.items[i].name), &r.items[i].price, &r.items[i].amount, &r.items[i].isWeighted, &r.items[i].returned_amount);
+				if (r.items[i].returned_amount > 0) {
+					printf("%-15s|%-15s|%-20s|%-20s|%-10.2lf\n", r.receiptID, r.customerName, r.items[i].name, r.purchaseTime, r.items[i].returned_amount);
+				}
+			}
+		}
+		fclose(fptr);
+	} else {
+		printf("No records found.\n");
+	}
+	printf("\nPress any key to return...");
+	_getch();
+}
+
+// Add to cart function
+void AddToCart(struct CartItem cart[], int* cart_counter, struct InventoryItems products[], int quantity_item_counter, struct WeightedItems productsW[], int weighted_item_counter) {
+	char name[99];
+	double amount;
+	int found = 0;
+
+	system("cls");
+	printf("--- ADD TO CART ---\n");
+	printf("Enter Item Name to add: ");
+	scanf_s("%s", name, (unsigned int)sizeof(name));
+
+	// Search in Quantity Items
+	for (int i = 0; i < quantity_item_counter; i++) {
+		if (strcmp(name, products[i].name) == 0) {
+			found = 1;
+			printf("Item Found! ID: %s, Price: %.2lf, Available: %d\n", products[i].ID, products[i].price, products[i].quantity);
+			printf("Enter Quantity: ");
+			scanf_s("%lf", &amount);
+			if (amount > 0 && amount <= products[i].quantity) {
+				strcpy_s(cart[*cart_counter].ID, sizeof(cart[*cart_counter].ID), products[i].ID);
+				strcpy_s(cart[*cart_counter].name, sizeof(cart[*cart_counter].name), products[i].name);
+				cart[*cart_counter].price = products[i].price;
+				cart[*cart_counter].amount = amount;
+				cart[*cart_counter].isWeighted = 0;
+				(*cart_counter)++;
+				printf("Added to cart!\n");
+			}
+			else {
+				printf("Invalid quantity or out of stock!\n");
+			}
+			_getch();
+			return;
+		}
+	}
+
+	// Search in Weighted Items
+	for (int i = 0; i < weighted_item_counter; i++) {
+		if (strcmp(name, productsW[i].name) == 0) {
+			found = 1;
+			printf("Item Found! ID: %s, Price: %.2lf, Available: %.2lf g\n", productsW[i].ID, productsW[i].price, productsW[i].weight);
+			printf("Enter Weight (grams): ");
+			scanf_s("%lf", &amount);
+			if (amount > 0 && amount <= productsW[i].weight) {
+				strcpy_s(cart[*cart_counter].ID, sizeof(cart[*cart_counter].ID), productsW[i].ID);
+				strcpy_s(cart[*cart_counter].name, sizeof(cart[*cart_counter].name), productsW[i].name);
+				cart[*cart_counter].price = productsW[i].price;
+				cart[*cart_counter].amount = amount;
+				cart[*cart_counter].isWeighted = 1;
+				(*cart_counter)++;
+				printf("Added to cart!\n");
+			}
+			else {
+				printf("Invalid weight or out of stock!\n");
+			}
+			_getch();
+			return;
+		}
+	}
+
+	if (!found) {
+		printf("Item Name not found!\n");
+		_getch();
+	}
+}
 
 // Add Item Screen
 void createitem(int position, int KeyPressed, int* created) {
@@ -580,13 +824,13 @@ void createitem(int position, int KeyPressed, int* created) {
 			return;
 		}
 	}
-	else if (KeyPressed = n || KeyPressed == N) {
+	else if (KeyPressed == n || KeyPressed == N) {
 		printf("\n            +----------------------------------------+\n");
 		printf("            |      Enter current item quantity       |\n");
 		printf("            +----------------------------------------+\n\n            >");
 		scanf_s("%d", &quantity);
 
-		if (quantity < 0 || quantity >= 'a' || quantity <= 'z' || quantity >= 'A' || quantity <= 'z') {
+		if (quantity < 0) {
 			printf("\n\nquantity must be an integer above zero! Press ANY key to continue...");
 			_getch();
 			return;
@@ -1174,6 +1418,8 @@ int main() {
 	struct CustomerAccount accountC[99] = { 0 };
 	struct InventoryItems products[1000] = { 0 };
 	struct WeightedItems productsW[1000] = { 0 };
+	struct CartItem cart[100] = { 0 };
+	int cart_counter = 0;
 
 	SaveInventory(products, &quantity_item_counter,&weighted_item_counter,productsW);
 	startupmessage();
@@ -1244,7 +1490,7 @@ int main() {
 	system("cls");
 	KeyPressed = 0;
 
-	if (position == 1 && KeyPressed == enter) {
+	if (position == 1) {
 		while (nameisput ==0 && passisput == 0 && KeyPressed != 13) {
 			signup(position, ManagerMode, CustomerMode,KeyPressed,&accountM[0],&nameisput,&passisput,&accountC[0]);
 		}
@@ -1274,7 +1520,7 @@ int main() {
 				}
 			}
 			else if (KeyPressed == enter && position == 1){
-				while (KeyPressed != q || KeyPressed != Q) {
+				while (KeyPressed != q && KeyPressed != Q) {
 					inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
 				}
 					
@@ -1316,7 +1562,10 @@ int main() {
 					}
 				}
 			}
-			else if (KeyPressed == enter && position == 4) {
+			else if (KeyPressed == enter && position == 4) { // VIEW RETURNS
+				ViewReturns();
+			}
+			else if (KeyPressed == enter && position == 5) { // SIGNOUT
 				printf("  Are you sure?(Y/N)");
 				KeyPressed = _getch();
 				if (KeyPressed == Y || KeyPressed == y) {
@@ -1330,6 +1579,108 @@ int main() {
 					continue;
 				}
 				
+			}
+		}
+	}
+	else if (CustomerMode) {
+		while (1) {
+			CustomerDashboard(&position, &accountC[0], KeyPressed);
+			KeyPressed = _getch();
+
+			if (KeyPressed == 0 || KeyPressed == 224) {
+				KeyPressed = _getch();
+				if (KeyPressed == down) {
+					position += 1;
+				}
+				else if (KeyPressed == up) {
+					position -= 1;
+				}
+			}
+			else if (KeyPressed == enter && position == 1) { // VIEW INVENTORY
+				while (KeyPressed != q && KeyPressed != Q) {
+					inventory(&KeyPressed, quantity_item_counter, weighted_item_counter, products, productsW, &position);
+				}
+			}
+			else if (KeyPressed == enter && position == 2) { // ADD TO CART
+				AddToCart(cart, &cart_counter, products, quantity_item_counter, productsW, weighted_item_counter);
+			}
+			else if (KeyPressed == enter && position == 3) { // CHECKOUT
+				double total = 0;
+				char receiptID[50];
+				system("cls");
+				printf("--- CHECKOUT ---\n");
+				for (int i = 0; i < cart_counter; i++) {
+					printf("%s - %.2lf x %.2lf\n", cart[i].name, cart[i].price, cart[i].amount);
+					total += (cart[i].price * cart[i].amount);
+				}
+				printf("Total: %.2lf EGP\nConfirm Purchase? (Y/N)", total);
+				KeyPressed = _getch();
+				if (KeyPressed == Y || KeyPressed == y) {
+					// Generate Receipt ID and get current time
+					time_t now = time(NULL);
+					struct tm t;
+					localtime_s(&t, &now);
+					char timeStr[100];
+					strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H:%M:%S", &t);
+					sprintf_s(receiptID, (unsigned int)sizeof(receiptID), "REC-%lld", (long long)now);
+					
+					// Save to Receipts file
+					if (fopen_s(&fptr, "receipts.txt", "a") == 0) {
+						fprintf(fptr, "%s %s %s %d\n", receiptID, accountC[0].username, timeStr, cart_counter);
+						for (int i = 0; i < cart_counter; i++) {
+							fprintf(fptr, "%s %s %.2lf %.2lf %d %.2lf\n", cart[i].ID, cart[i].name, cart[i].price, cart[i].amount, cart[i].isWeighted, 0.0);
+						}
+						fclose(fptr);
+					}
+
+					// Apply deductions to main inventory arrays
+					for (int i = 0; i < cart_counter; i++) {
+						if (cart[i].isWeighted) {
+							for (int j = 0; j < weighted_item_counter; j++) {
+								if (strcmp(cart[i].ID, productsW[j].ID) == 0) {
+									productsW[j].weight -= cart[i].amount;
+								}
+							}
+						}
+						else {
+							for (int j = 0; j < quantity_item_counter; j++) {
+								if (strcmp(cart[i].ID, products[j].ID) == 0) {
+									products[j].quantity -= (int)cart[i].amount;
+								}
+							}
+						}
+					}
+					// Persist to files
+					if (fopen_s(&fptr, "inventory.txt", "w") == 0) {
+						for (int i = 0; i < quantity_item_counter; i++) {
+							fprintf(fptr, "%s %s %.2lf %d\n", products[i].ID, products[i].name, products[i].price, products[i].quantity);
+						}
+						fclose(fptr);
+					}
+					if (fopen_s(&fptr, "weighteditems.txt", "w") == 0) {
+						for (int i = 0; i < weighted_item_counter; i++) {
+							fprintf(fptr, "%s %s %.2lf %.2lf\n", productsW[i].ID, productsW[i].name, productsW[i].price, productsW[i].weight);
+						}
+						fclose(fptr);
+					}
+					
+					printf("\nPurchase complete!\nYOUR RECEIPT ID: %s\nPress any key...", receiptID);
+					cart_counter = 0;
+					_getch();
+				}
+			}
+			else if (KeyPressed == enter && position == 4) { // RETURN ITEM
+				ReturnItem(products, quantity_item_counter, productsW, weighted_item_counter);
+			}
+			else if (KeyPressed == enter && position == 5) { // SIGNOUT
+				CustomerMode = 0;
+				ManagerMode = 0;
+				nameisput = 0;
+				passisput = 0;
+				cart_counter = 0;
+				position = 1;
+				KeyPressed = 0;
+				break;
 			}
 		}
 	}
